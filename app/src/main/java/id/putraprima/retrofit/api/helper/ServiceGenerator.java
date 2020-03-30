@@ -9,7 +9,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ServiceGenerator {
 
-
     private static final String BASE_URL = "https://mobile.putraprima.id";
 
     private static Retrofit.Builder builder =
@@ -17,10 +16,7 @@ public class ServiceGenerator {
                     .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create());
 
-    private static Retrofit retrofit;
-    public static Retrofit retrofit(){
-        return retrofit;
-    }
+    private static Retrofit retrofit = builder.build();
 
     private static HttpLoggingInterceptor logging =
             new HttpLoggingInterceptor()
