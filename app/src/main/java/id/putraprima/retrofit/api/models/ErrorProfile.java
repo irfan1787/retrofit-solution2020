@@ -4,11 +4,14 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class Error {
+public class ErrorProfile {
 
-    @SerializedName("name, email ,password,password_confirmation")
+    @SerializedName("name,email")
     @Expose
+
     private List<String> name = null;
+    private List<String> email = null;
+
     public List<String> getName() {
         return name;
     }
@@ -17,9 +20,6 @@ public class Error {
         this.name = name;
     }
 
-    @SerializedName("email")
-    @Expose
-    private List<String> email = null;
     public List<String> getEmail() {
         return email;
     }
@@ -29,15 +29,13 @@ public class Error {
     }
 
 
-    @SerializedName("password")
-    @Expose
-    private List<String> password = null;
-
-    public List<String> getPassword() {
-        return password;
+    @Override
+    public String toString(){
+        return "Error {" +
+                "name = '"+ name + '\'' +
+                "email = '"+ email + '\'' +
+               "}"
+                ;
     }
 
-    public void setPassword(List<String> password) {
-        this.password = password;
-    }
 }

@@ -1,7 +1,6 @@
 package id.putraprima.retrofit.ui;
 
 import android.os.Bundle;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -10,7 +9,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import id.putraprima.retrofit.R;
 import id.putraprima.retrofit.api.helper.ServiceGenerator;
+import id.putraprima.retrofit.api.models.ApiError;
 import id.putraprima.retrofit.api.models.Envelope;
+import id.putraprima.retrofit.api.models.ErrorUtils;
 import id.putraprima.retrofit.api.models.RegisterRequest;
 import id.putraprima.retrofit.api.models.RegisterResponse;
 import id.putraprima.retrofit.api.services.ApiInterface;
@@ -42,14 +43,20 @@ public class RegisterActivity extends AppCompatActivity {
         call.enqueue(new Callback<Envelope<RegisterResponse>>() {
             @Override
             public void onResponse(Call<Envelope<RegisterResponse>> call, Response<Envelope<RegisterResponse>> response) {
-                if (response.code() == 302){
-                    //Biar gak langsung FC kalo dapet response selain 201
-                    Toast.makeText(RegisterActivity.this, "Register Failed, Duplicate User", Toast.LENGTH_SHORT).show();
-                }else if (response.code() == 201){
-                    Toast.makeText(RegisterActivity.this, response.body().getData().getName(), Toast.LENGTH_SHORT).show();
-                    Toast.makeText(RegisterActivity.this, response.body().getData().getEmail(), Toast.LENGTH_SHORT).show();
-                    Toast.makeText(RegisterActivity.this, "Register Successfull", Toast.LENGTH_SHORT).show();
-                }
+                if (response.code() == 201){
+                   Toast.makeText(RegisterActivity.this, "Register Successfull", Toast.LENGTH_SHORT).show();
+                }else if (response.code() != 201){
+                   ApiError error = ErrorUtils.parseError(response);
+                   if (error.getError().getName() != null){
+                       Toast.makeText(RegisterActivity.this, error.getError().getName().get(0), Toast.LENGTH_SHORT).show();
+                    }else if (error.getError().getEmail() !=null){
+                        Toast.makeText(RegisterActivity.this, error.getError().getEmail().get(0), Toast.LENGTH_SHORT).show();
+                    }else if (error.getError().getPassword() != null){
+                        for (int i = 0;i < error.getError().getPassword().size();i++){
+                            Toast.makeText(RegisterActivity.this, error.getError().getPassword().get(i), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+               }
             }
 
             @Override
@@ -66,34 +73,6 @@ public class RegisterActivity extends AppCompatActivity {
         String password_confirm = mPasswordConfirm.getText().toString();
         registerRequest = new RegisterRequest(name, email, password, password_confirm);
 
-        boolean check;
-        if (name.equals("")) {
-            Toast.makeText(this, "Name is Empty!", Toast.LENGTH_SHORT).show();
-            check = false;
-        } else if(email.equals("")) {
-            Toast.makeText(this, "Email is Empty!", Toast.LENGTH_SHORT).show();
-            check = false;
-        } else if (password.equals("")) {
-            Toast.makeText(this, "Password is Empty!", Toast.LENGTH_SHORT).show();
-            check = false;
-        } else if (password_confirm.equals("")) {
-            Toast.makeText(this, "Password Confirmation is Empty!", Toast.LENGTH_SHORT).show();
-            check = false;
-        } else if (password.length() < 8) {
-            Toast.makeText(this, "Password limit 8", Toast.LENGTH_SHORT).show();
-            check = false;
-        } else if (!password_confirm.equals(password)) {
-            Toast.makeText(this, "Confirm Password not Same!", Toast.LENGTH_SHORT).show();
-            check = false;
-        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
-            Toast.makeText(this, "Email Not Valid", Toast.LENGTH_SHORT).show();
-            check = false;
-        } else {
-            check = true;
-        }
-
-        if (check == true) {
             register();
-        }
     }
 }
